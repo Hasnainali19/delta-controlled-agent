@@ -1,0 +1,13 @@
+{
+  "DEC-001": [
+    "job_targets.md",
+    "relocation_notes.md"
+  ],
+  "DEC-002": [
+    "job_targets.md",
+    "resume_strategy.md"
+  ],
+  "DEC-003": [
+    "weekly_actions.md"
+  ]
+}
