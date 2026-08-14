@@ -1,0 +1,11 @@
+{
+  "summary": "Change the target_id values in job_targets.md and relocation_notes.md to Nova Scotia.",
+  "updates": [
+    {
+      "file_name": "relocation_notes.md",
+      "original_text": "Alberta",
+      "replacement_text": "Nova Scotia",
+      "reason": "To reflect the new location in relocation notes related to Nova Scotia."
+    }
+  ]
+}

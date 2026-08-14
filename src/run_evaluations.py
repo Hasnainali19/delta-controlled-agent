@@ -1,5 +1,8 @@
 import json
-
+from paths import (
+    EVALUATION_RESULTS_PATH,
+    ensure_runtime_directory
+)
 
 def validate(proposal, contract, file_contents):
     errors = []
@@ -156,10 +159,14 @@ for case in test_cases:
     status = "PASS" if test_passed else "FAIL"
     print(f"{status}: {case['name']}")
 
-with open("evaluation_results.json", "w") as file:
-    json.dump(results, file, indent=2)
+ensure_runtime_directory()
+
+EVALUATION_RESULTS_PATH.write_text(
+    json.dumps(results, indent=2),
+    encoding="utf-8"
+)
 
 successful_tests = sum(result["test_passed"] for result in results)
 
 print(f"\n{successful_tests}/{len(results)} evaluation tests passed.")
-print("Results saved to evaluation_results.json")
+print("Results saved to", EVALUATION_RESULTS_PATH)

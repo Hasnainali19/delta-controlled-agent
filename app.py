@@ -5,61 +5,70 @@ from pathlib import Path
 
 import streamlit as st
 
+from src.paths import (
+    AUDIT_LOG_PATH,
+    CONTRACT_PATH,
+    EVALUATION_RESULTS_PATH,
+    PLAN_PATH,
+    PROJECT_ROOT,
+    PROPOSAL_PATH,
+    SRC_DIR,
+    VALIDATION_REPORT_PATH
+)
+
 
 st.set_page_config(
     page_title="Delta-Controlled Agent",
-    page_icon="Locked ",
+    page_icon="🔒",
     layout="wide"
 )
 
 
-def load_json(file_name):
-    path = Path(file_name)
-
+def load_json(path):
     if not path.exists():
         return None
 
-    with path.open("r", encoding="utf-8") as file:
-        return json.load(file)
-
-
-def read_text(file_name):
-    path = Path(file_name)
-
-    if not path.exists():
-        return ""
-
-    return path.read_text(encoding="utf-8")
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def run_script(script_name, user_input=None):
     result = subprocess.run(
-        [sys.executable, script_name],
+        [sys.executable, str(SRC_DIR / script_name)],
+        cwd=PROJECT_ROOT,
         input=user_input,
         capture_output=True,
         text=True
     )
 
-    output = result.stdout + result.stderr
+    st.session_state["last_output"] = (
+        result.stdout + result.stderr
+    )
 
-    if result.returncode == 0:
-        st.success(f"{script_name} completed.")
+    st.session_state["last_success"] = (
+        result.returncode == 0
+    )
+
+
+def show_last_output():
+    if "last_output" not in st.session_state:
+        return
+
+    if st.session_state["last_success"]:
+        st.success("Command completed.")
     else:
-        st.error(f"{script_name} stopped with an error.")
+        st.error("Command stopped with an error.")
 
-    st.code(output or "No terminal output", language="text")
+    st.code(
+        st.session_state["last_output"] or "No terminal output",
+        language="text"
+    )
 
 
-st.title("Locked  Delta-Controlled Agent")
+st.title("🔒 Delta-Controlled Agent")
 st.caption(
-    "A human-in-the-loop system that turns one plan edit into a "
-    "small, reviewable, dependency-scoped update."
+    "A human-in-the-loop system that converts a plan decision "
+    "into a dependency-scoped, validated, reviewable update."
 )
-
-contract = load_json("mutation_contract.json")
-proposal = load_json("proposal.json")
-validation = load_json("validation_report.json")
-evaluation_results = load_json("evaluation_results.json")
 
 with st.sidebar:
     st.header("Control panel")
@@ -92,6 +101,9 @@ with st.sidebar:
     if st.button("Run guardrail evaluations"):
         run_script("run_evaluations.py")
 
+    show_last_output()
+
+
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "Plan",
     "Mutation Contract",
@@ -100,65 +112,76 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "Evaluations"
 ])
 
+
 with tab1:
     st.subheader("Source plan")
 
-    current_plan = read_text("plan.md")
+    current_plan = PLAN_PATH.read_text(encoding="utf-8")
 
     edited_plan = st.text_area(
-        "Edit a decision, then use step 1 in the control panel.",
+        "Edit one decision, save it, then create a contract.",
         value=current_plan,
-        height=300
+        height=320
     )
 
-    if st.button("Save plan.md"):
-        Path("plan.md").write_text(edited_plan, encoding="utf-8")
-        st.success("plan.md saved. The agent has not made any changes yet.")
+    if st.button("Save plan"):
+        PLAN_PATH.write_text(
+            edited_plan,
+            encoding="utf-8"
+        )
+        st.success("Plan saved. No agent changes were applied.")
+
 
 with tab2:
-    st.subheader("The painter's job card")
+    st.subheader("Mutation contract")
+
+    contract = load_json(CONTRACT_PATH)
 
     if contract:
-        left, right = st.columns(2)
+        unlocked, locked = st.columns(2)
 
-        with left:
-            st.success("Unlocked rooms")
+        with unlocked:
+            st.success("Unlocked files")
             st.write(contract["allowed_files"])
 
-        with right:
-            st.error("Locked rooms")
+        with locked:
+            st.error("Protected files")
             st.write(contract["protected_files"])
 
         st.json(contract)
     else:
         st.info("Create a mutation contract to view it here.")
 
+
 with tab3:
     st.subheader("AI patch proposal")
 
-    if proposal:
-        st.write(proposal.get("summary", ""))
+    proposal = load_json(PROPOSAL_PATH)
 
-        for update in proposal.get("updates", []):
+    if proposal:
+        st.write(proposal["summary"])
+
+        for update in proposal["updates"]:
             st.markdown(f"### {update['file_name']}")
             st.write(f"**Reason:** {update['reason']}")
 
             before, after = st.columns(2)
 
             with before:
-                st.error("Before")
+                st.error("Exact source text")
                 st.code(update["original_text"])
 
             with after:
                 st.success("Proposed replacement")
                 st.code(update["replacement_text"])
-
-        st.json(proposal)
     else:
-        st.info("Generate a local proposal to view it here.")
+        st.info("Generate a proposal to view it here.")
+
 
 with tab4:
     st.subheader("Validation and audit trail")
+
+    validation = load_json(VALIDATION_REPORT_PATH)
 
     if validation:
         if validation["passed"]:
@@ -168,28 +191,31 @@ with tab4:
 
         st.json(validation)
     else:
-        st.info("No validation report yet.")
+        st.info("No validation report exists yet.")
 
-    audit_path = Path("audit_log.jsonl")
-
-    if audit_path.exists():
-        st.subheader("Audit events")
-
+    if AUDIT_LOG_PATH.exists():
         audit_events = [
             json.loads(line)
-            for line in audit_path.read_text(
+            for line in AUDIT_LOG_PATH.read_text(
                 encoding="utf-8"
             ).splitlines()
             if line.strip()
         ]
 
+        st.subheader("Audit events")
         st.dataframe(audit_events, use_container_width=True)
+
 
 with tab5:
     st.subheader("Guardrail evaluation results")
 
+    evaluation_results = load_json(EVALUATION_RESULTS_PATH)
+
     if evaluation_results:
-        st.dataframe(evaluation_results, use_container_width=True)
+        st.dataframe(
+            evaluation_results,
+            use_container_width=True
+        )
 
         passed_tests = sum(
             result["test_passed"]
@@ -201,4 +227,4 @@ with tab5:
             f"{passed_tests}/{len(evaluation_results)}"
         )
     else:
-        st.info("Run the guardrail evaluations to view results.")
+        st.info("Run evaluations to show results.")
