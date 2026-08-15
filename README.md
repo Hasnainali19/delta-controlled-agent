@@ -1,4 +1,4 @@
-# 🔒 Delta-Controlled Agent
+#  Delta-Controlled Agent
 
 A human-in-the-loop AI system that converts one Markdown plan change into a small, dependency-scoped, validated, and reviewable update.
 
