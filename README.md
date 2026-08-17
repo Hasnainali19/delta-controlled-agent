@@ -174,7 +174,7 @@ It focuses on making AI agents safer and easier to collaborate with at a fine-gr
 
 ### 1. A small plan decision changes
 
-![Plan change](assets/01-plan-change.png)
+![Plan change](assets/assets01-plan-change.png)
 
 ### 2. The mutation contract unlocks only relevant files
 
