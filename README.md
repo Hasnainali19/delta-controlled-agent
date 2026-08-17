@@ -178,19 +178,19 @@ It focuses on making AI agents safer and easier to collaborate with at a fine-gr
 
 ### 2. The mutation contract unlocks only relevant files
 
-![Mutation contract](assets/02-mutation-contract.png)
+![Mutation contract](assets/assets02-mutation-contract.png)
 
 ### 3. The local LLM proposes exact replacements
 
-![AI proposal](assets/03-ai-proposal.png)
+![AI proposal](assets/assets03-ai-proposal.png)
 
 ### 4. Validation checks the proposal before any update is applied
 
-![Validation passed](assets/04-validation-passed.png)
+![Validation passed](assets/assets04-validation-passed.png)
 
 ### 5. Guardrail evaluations test safe and unsafe cases
 
-![Guardrail evaluations](assets/05-guardrail-evaluations.png)
+![Guardrail evaluations](assets/assets05-guardrail-evaluations.png)
 
 ## Author
 
