@@ -170,7 +170,31 @@ It focuses on making AI agents safer and easier to collaborate with at a fine-gr
 * Add proposal diffs directly in the dashboard.
 * Compare model quality across local and hosted models.
 
+## Demo screenshots
+
+### 1. A small plan decision changes
+
+![Plan change](assets/01-plan-change.png)
+
+### 2. The mutation contract unlocks only relevant files
+
+![Mutation contract](assets/02-mutation-contract.png)
+
+### 3. The local LLM proposes exact replacements
+
+![AI proposal](assets/03-ai-proposal.png)
+
+### 4. Validation checks the proposal before any update is applied
+
+![Validation passed](assets/04-validation-passed.png)
+
+### 5. Guardrail evaluations test safe and unsafe cases
+
+![Guardrail evaluations](assets/05-guardrail-evaluations.png)
+
 ## Author
 
 **Hasnainali Saiyed**
 Built as a portfolio project exploring controllable, human-in-the-loop AI agents.
+
+
