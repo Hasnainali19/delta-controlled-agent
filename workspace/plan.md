@@ -1,5 +1,5 @@
 ## DEC-001 - Target location 
-Ontario outside GTA
+Alberta 
 
 ## DEC-002 - Target roles 
 Data Analyst, Business Analyst, IT support
